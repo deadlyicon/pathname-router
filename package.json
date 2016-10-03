@@ -2,9 +2,11 @@
   "name": "pathname-router",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register"
+    "test": "mocha --compilers js:babel-core/register",
+    "build": "babel index.js -d build",
+    "prepublish": "npm run build"
   },
   "author": "Jared Grippe <jared@deadlyicon.com>",
   "license": "MIT",
