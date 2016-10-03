@@ -1,6 +1,6 @@
 {
   "name": "pathname-router",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "a simple pathname router",
   "repository": "git@github.com:deadlyicon/pathname-router.git",
   "main": "build/index.js",
