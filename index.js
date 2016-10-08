@@ -1,3 +1,6 @@
+import pathToRegexp from 'path-to-regexp'
+import querystring from 'querystring'
+
 export default class PathnameRouter {
   constructor(){
     this.routes = []
@@ -5,47 +8,38 @@ export default class PathnameRouter {
   }
 
   map(pathExpression, params){
-    this.routes.push({ pathExpression, params })
+    const route = new Route(pathExpression, params)
+    this.routes.push(route)
     return this
   }
 
-  resolve(location){
+  resolve(pathname){
     let resolvedRoute
     this.routes.find(route => {
-      if (!('paramNames' in route) || !('regexp' in route)){
-        Object.assign(route, parsePathExpression(route.pathExpression))
-      }
-      const parts = location.pathname.match(route.regexp)
-      if (!parts) return false
-      parts.shift();
-      const params = Object.assign({}, route.params)
-      route.paramNames.forEach(paramName => {
-        params[paramName] = decodeURIComponent(parts.shift()).replace(/\+/g, ' ')
-      })
-      resolvedRoute = {
-        params: params,
-        location: location,
-      }
-      return true
+      return resolvedRoute = route.match(pathname)
     })
     return resolvedRoute
   }
 }
 
-
-const escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g
-const namedParams  = /\/?(:|\*)([^\/?]+)/g
-const parsePathExpression = (expression) => {
-  let paramNames = [];
-  expression = expression.replace(escapeRegExp, '\\$&')
-  expression = expression.replace(namedParams, (_, type, paramName) => {
-    paramNames.push(paramName)
-    if (type === ':') return '/([^/?]+)';
-    if (type === '*') return '/(.*?)';
-  })
-  let regexp = new RegExp('^'+expression+'$');
-  return {
-    paramNames: paramNames,
-    regexp: regexp,
+class Route {
+  constructor(pathExpression, params){
+    this.pathExpression = pathExpression
+    this.params = params
+    this.regexp = pathToRegexp(pathExpression)
   }
+
+  match(pathname){
+    const matches = this.regexp.exec(pathname)
+    if (!matches) return false
+    const params = Object.assign({}, this.params)
+    this.regexp.keys.forEach((key, index) =>
+      params[key.name] = matches[index+1]
+    )
+    return params
+  }
+}
+
+const searchToObject = (search) => {
+  return querystring.parse((search || '').replace(/^\?/, ''))
 }

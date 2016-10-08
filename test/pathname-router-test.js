@@ -1,59 +1,47 @@
 import chai from 'chai'
-import SimpleRouter from '..'
+import PathnameRouter from '../index'
 const { expect } = chai
 
+
+
 describe('PathnameRouter', () => {
-  it('should work', () => {
-    expect(SimpleRouter).to.be.a('function')
-    const router = new SimpleRouter
-    expect(router).to.be.an.instanceof(SimpleRouter)
-    expect(router.routes).to.be.an('array')
-    expect(router.map).to.be.an('function')
 
-    let route
-    route = router.resolve({
-      pathname: '/'
-    })
-
-    expect(route).to.be.undefined
-
+  let router
+  beforeEach(() => {
+    router = new PathnameRouter
     router.map('/',              {name: 'HomePage'})
     router.map('/about',         {name: 'AboutPage'})
     router.map('/posts/:postId', {name: 'PostShowPage'})
-    router.map('*path',          {name: 'CatchAllPage'})
+    router.map('/:path*',        {name: 'CatchAllPage'})
+  })
 
-    route = router.resolve({
-      pathname: '/'
-    })
-    expect(route).to.be.an('object')
-    expect(route.params).to.eql({
-      name: 'HomePage'
+  it('should be a Constructor', () => {
+    expect(PathnameRouter).to.be.a('function')
+    expect(router).to.be.an.instanceof(PathnameRouter)
+  })
+
+  it('an empty router to resolve undefined', () => {
+    expect((new PathnameRouter).resolve({pathname:''})).to.eql(undefined)
+  })
+
+  it('should route as expected', () => {
+    expect(router.resolve('/')).to.eql({
+      name: 'HomePage',
     })
 
-    route = router.resolve({
-      pathname: '/about'
-    })
-    expect(route).to.be.an('object')
-    expect(route.params).to.eql({
-      name: 'AboutPage'
+    expect(router.resolve('/about')).to.eql({
+      name: 'AboutPage',
     })
 
-    route = router.resolve({
-      pathname: '/posts/1234'
-    })
-    expect(route).to.be.an('object')
-    expect(route.params).to.eql({
+    expect(router.resolve('/posts/12')).to.eql({
       name: 'PostShowPage',
-      postId: '1234',
+      postId: "12",
     })
 
-    route = router.resolve({
-      pathname: '/broken-bad/url.here'
-    })
-    expect(route).to.be.an('object')
-    expect(route.params).to.eql({
+    expect(router.resolve('/bad/path')).to.eql({
       name: 'CatchAllPage',
-      path: 'broken-bad/url.here',
+      path: "bad/path",
     })
   })
+
 })
