@@ -1,9 +1,12 @@
 {
   "name": "pathname-router",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "a simple pathname router",
   "repository": "git@github.com:deadlyicon/pathname-router.git",
   "main": "build/index.js",
+  "files": [
+    "build/index.js"
+  ],
   "scripts": {
     "test": "mocha --compilers js:babel-core/register",
     "build": "babel index.js -d build",
